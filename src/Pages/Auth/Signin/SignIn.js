@@ -1,5 +1,5 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -10,16 +10,46 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import PersonPinIcon from "@mui/icons-material/PersonPin";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import axios from "axios";
 
 const theme = createTheme();
 
 export default function SignIn(props) {
   const { setUser } = props;
   const [errrorMessage, setErrorMessage] = React.useState("");
+  let navigate = useNavigate()
 
   const handleSubmit = async (event) => {
+    // Prevent reloading
     event.preventDefault();
-    console.log("signing in");
+
+    // Extract form information
+    const formData = new FormData(event.currentTarget);
+    const form = {
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
+
+    // Post request to signin route
+    const { data } = await axios.post(
+      "http://localhost:5001/api/v1/user/signin",
+      form
+    );
+
+    // Evaluate response
+    if (data.status === parseInt("401")) {
+      // 
+      setErrorMessage(data.response);
+    } else {
+      // Store token in local storage
+      localStorage.setItem("token", data.body.token);
+
+      // Store stateful info about current user
+      setUser(data.body.user);
+
+      // Redirect to dashboard
+      navigate("/dashboard");
+    }
   };
   return (
     <ThemeProvider theme={theme}>

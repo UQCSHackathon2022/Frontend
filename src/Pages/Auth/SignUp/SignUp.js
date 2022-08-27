@@ -9,13 +9,34 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import PersonPinIcon from "@mui/icons-material/PersonPin";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const theme = createTheme();
 
 export default function SignUp() {
+    let navigate = useNavigate();
+
   const handleSubmit = async (event) => {
+    // Prevent page reloading
     event.preventDefault();
-    console.log("signing up");
+
+    // Extract form information
+      const formData = new FormData(event.currentTarget);
+      const form = {
+        fName: formData.get("fname"),
+        lName: formData.get("lname"),
+        sID: formData.get("sID"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+      };
+      console.log(form);
+
+      // post request to signup route
+      await axios.post("http://localhost:5001/api/v1/user/signup", form);
+
+      // redirect to signin page
+      navigate("/");
   };
 
   return (
